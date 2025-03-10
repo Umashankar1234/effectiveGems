@@ -32,7 +32,9 @@
                         <i class="fa-solid fa-question-circle"></i> <span>FAQ</span>
                     </a>
                 </li>
-
+                <li class="{{ request()->routeIs('admin.product.ring.size') ? 'active' : '' }}">
+                    <a href="{{ route('admin.product.ring.size') }}">Ring Price</a>
+                </li>
                 <li class="submenu">
                     <a href="#">
                         <i class="fa-solid fa-passport"></i> <span>Product</span>

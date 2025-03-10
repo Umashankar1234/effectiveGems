@@ -4,11 +4,35 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Ring;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-       public function listcat(){
+    public function productRingSizelist(){
+        $ringSize = Ring::orderBy('id', 'desc')->get();
+        return view('admin.sizeprice.list', compact('ringSize'));
+    }
+    
+    public function storeRingSize(Request $request) {
+        Ring::create([
+            'size' => $request->size,
+            'gold_price' => $request->gold_price,
+            'silver_price' => $request->silver_price
+        ]);
+        return response()->json(['success' => true, '']);
+    }
+    
+    public function updateRingSize(Request $request, $id) {
+        $ring = Ring::findOrFail($id);
+        $ring->update([
+            'size' => $request->size,
+            'gold_price' => $request->gold_price,
+            'silver_price' => $request->silver_price
+        ]);
+        return response()->json(['success' => true]);
+    }
+    public function listcat(){
         // Fetch categories with the count of related products, excluding categories with status 2
         $categories = Category::whereNotIn('status', [2])
                               ->withCount('products')  // Count related products

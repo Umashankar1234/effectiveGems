@@ -324,8 +324,9 @@ $(window).on("load", function () {
     $(".as_loader").addClass("hide");
 });
 
+// update the 
 $(document).ready(function () {
-    const handleQuantityChange = (quantity) => {
+    const handleQuantityChange = (quantity) => { debugger
         const productCategory = parseInt($("#productCategory").val());
         const courierType = parseInt($("#courierTypeId").val());
         const courierPrice = parseInt($("#courierPrice").val());
@@ -333,7 +334,7 @@ $(document).ready(function () {
         const priceDisplay = $("#product-price-total");
         const productPrice = parseInt($("#productPrice").val());
         let deliveryPrice = 0;
-
+        var ringPrice = parseInt($('#ring-price').val());
         // Calculate delivery price based on courier type
         if (courierType != 1 && courierType != 2 && productCategory != 1) {
             deliveryPrice = courierPrice * quantity; // Multiply delivery price by quantity
@@ -352,10 +353,17 @@ $(document).ready(function () {
                 parseInt($("#certificationCheckbox").data("price")) || 0;
         }
 
-        const totalPrice = productPrice * quantity + deliveryPrice + extraPrice;
+        const totalPrice = productPrice * quantity + deliveryPrice + extraPrice + ringPrice;
         priceDisplay.text(totalPrice);
     };
-
+    $("#gold-price").change(() => {
+        const count = $("#quantityDd").val();
+        handleQuantityChange(count);
+    });
+    $("#silver-price").change(() => {
+        const count = $("#quantityDd").val();
+        handleQuantityChange(count);
+    });
     $("#quantityDd").change(() => {
         const count = $("#quantityDd").val();
         handleQuantityChange(count);

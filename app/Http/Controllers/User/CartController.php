@@ -141,6 +141,7 @@ class CartController extends Controller
     }
     public function addToCart(Request $req)
     {
+        // return $req;
         $userId = null;
 
         if (Auth::guard('euser')->check()) {
@@ -183,6 +184,14 @@ class CartController extends Controller
             $cartItem->quantity = $quantity;
             $cartItem->is_act_selected = $req->isActive;
             $cartItem->is_cert_selected = $req->isCert;
+            $cartItem->activationUserName = $req->activationUserName;
+            $cartItem->gotra = $req->gotra;
+            if($req->dob){
+                $cartItem->dob = date('Y-m-d',strtotime($req->dob));
+            }
+            $cartItem->addRing = $req->addRing ?? 0;
+            $cartItem->selectedMetal = $req->selectedMetal;
+            $cartItem->ringPrice = $req->ringPrice;
             if ($req->isActive == 1) {
                 $product = Product::find($product_id);
                 if ($product->activationId != 1 || $product->activationId != 2) {

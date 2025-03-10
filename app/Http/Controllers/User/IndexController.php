@@ -7,6 +7,7 @@ use App\Models\Banner;
 use App\Models\Category;
 use App\Models\Couriertype;
 use App\Models\Faq;
+use App\Models\Ring;
 use App\Models\Product;
 use App\Models\SubCategory;
 use App\Models\Page;
@@ -628,7 +629,7 @@ class IndexController extends Controller
     {
 
         $userId = Auth::guard('euser')->id();
-
+        $ringSizes = Ring::orderBy('id', 'desc')->get();
         $productdetails = Product::with('category')->where('seoUrl', $slug)->orWhere('old_seo_url', $slug)->first();
 
         if (!$productdetails) {
@@ -652,7 +653,7 @@ class IndexController extends Controller
         if ($productdetails->variant)
             $variants = Product::whereIn("id", json_decode($productdetails->variant))->select("variantName", "priceB2C", "productName")->get();        // dd(count($variants));
 
-        return view('user.details.product', compact('productdetails', 'relatedProducts', 'popularproducts', 'variants', "couriertype",'isInWishlist'));
+        return view('user.details.product', compact('productdetails', 'relatedProducts', 'popularproducts', 'variants', "couriertype",'isInWishlist','ringSizes'));
     }
 
     public function getProductsForCategory($categoryId)

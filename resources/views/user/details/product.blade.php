@@ -157,7 +157,6 @@ Effective Gems')
                                     @if (!($Certification && $Certification->id == 2))
                                     <div class="data-check">
                                         <label>
-
                                             Certification (+{{ $Certification->amount ?? 'N/A' }})
                                             <input type="checkbox" id="certificationCheckbox" name="is_cert"
                                                 value="1" data-price="{{ $Certification->amount ?? 0 }}">
@@ -167,9 +166,72 @@ Effective Gems')
                                     @endif
 
                                 </div>
+                                <div id="activationFields" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="activationUserName">Activation User Name</label>
+                                        <input type="text" id="activationUserName" placeholder="Enter Activation User Name" name="activationUserName" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="gotra">Gotra</label>
+                                        <input type="text" id="gotra" name="gotra" placeholder="Enter gotra" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dob">Date of Birth</label>
+                                        <input type="text" id="dob" name="dob" placeholder="dob" class="form-control">
+                                    </div>
+                                </div>
                                 @endif
 
-
+                                @if ($productdetails->categoryId == 1)
+                                <div class="mt-1">
+                                    <!-- Add Ring Checkbox -->
+                                    <div class="extra-checkbox">
+                                        <label>
+                                            <input type="checkbox" id="add-ring"> Add Ring
+                                        </label>
+                                    </div>
+                            
+                                    <!-- Radio buttons for gold and silver selection -->
+                                    <div id="metal-selection" class="hidden form-group">
+                                        <div class="d-flex justify-content-between">
+                                        <label class="metal-option col-6" style="margin: 0px 10px;">
+                                            <input type="radio" name="metal" value="gold">
+                                            <span class="icon-text">
+                                                <i class="fas fa-coins" style="font-size:28px; color:rgb(255, 215, 0);"></i>
+                                                Gold
+                                            </span>
+                                        </label>
+                                        <label class="metal-option col-6">
+                                            <input type="radio" name="metal" value="silver">
+                                            <span class="icon-text">
+                                                <i class="fas fa-coins" style="font-size:28px; color:rgb(192, 192, 192);"></i>
+                                                Silver
+                                            </span>
+                                        </label>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- Dropdowns for Gold and Silver Prices -->
+                                    <div id="gold-selection" class="hidden form-group">
+                                        <label for="gold-price">Select Gold Price:</label>
+                                        <select id="gold-price" class="form-control">
+                                            <option value="">Select Gold Price</option>
+                                            <!-- Options will be populated dynamically -->
+                                        </select>
+                                    </div>
+                            
+                                    <div id="silver-selection" class="hidden form-group">
+                                        <label for="silver-price">Select Silver Price:</label>
+                                        <select id="silver-price" class="form-control">
+                                            <option value="">Select Silver Price</option>
+                                            <!-- Options will be populated dynamically -->
+                                        </select>
+                                    </div>
+                                   <input type="hidden" id="ring-price" value="0">
+                                    <!-- Display the selected price -->
+                                </div> 
+                                @endif
+                            
 
 
                                 <div class="total-price-details" data-aos="fade-up">
@@ -393,6 +455,8 @@ Effective Gems')
 @endif
 <!--Popular Products end-->
 @endsection
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     const addToWishlist = (proId, element) => {
 
@@ -422,11 +486,68 @@ Effective Gems')
             },
         });
     };
+    // const addToCart = (proId) => {
+        
+    //     var quantity = parseFloat($('input[name="quantity"], select[name="quantity"]').val());
+    //     var isActive = $('input[name="is_act"]').is(':checked') ? $('input[name="is_act"]').val() : 0;
+    //     var isCert = $('input[name="is_cert"]').is(':checked') ? $('input[name="is_cert"]').val() : 0;
+    //     $.ajax({
+    //         type: "POST",
+    //         url: "{{ route('addToCart') }}",
+    //         data: {
+    //             _token: "{{ csrf_token() }}",
+    //             product_id: proId,
+    //             quantity: quantity,
+    //             isActive: isActive,
+    //             isCert: isCert,
+    //         },
+    //         success: function(response) {
+    //             $(".cartCount").text(response.totalCartItems);
+    //             alert(response.message);
+    //             // toastr.success(response.message);
+    //         },
+    //         error: function(xhr, status, error) {
+    //             // toastr.error("An error occurred: " + error);
+    //         },
+    //     });
+    // };
     const addToCart = (proId) => {
-
         var quantity = parseFloat($('input[name="quantity"], select[name="quantity"]').val());
         var isActive = $('input[name="is_act"]').is(':checked') ? $('input[name="is_act"]').val() : 0;
         var isCert = $('input[name="is_cert"]').is(':checked') ? $('input[name="is_cert"]').val() : 0;
+        debugger;
+
+        // Validate quantity
+        if (isNaN(quantity) || quantity <= 0) {
+            alert("Please enter a valid quantity.");
+            return; // Stop further execution if quantity is invalid
+        }
+
+        // Collect activation fields if activation is checked
+        var activationUserName = $("#activationCheckbox").is(":checked") ? $("#activationUserName").val() : null;
+        var gotra = $("#activationCheckbox").is(":checked") ? $("#gotra").val() : null;
+        var dob = $("#activationCheckbox").is(":checked") ? $("#dob").val() : null;
+
+        // Validate activationUserName if activation is checked
+        if ($("#activationCheckbox").is(":checked") && (!activationUserName || activationUserName.trim() === "")) {
+            alert("Please enter a valid activation user name.");
+            return; // Stop further execution if activation user name is invalid
+        }
+
+        // Collect ring selection data
+        var addRing = $("#add-ring").is(":checked") ? 1 : 0;
+        var selectedMetal = $("input[name='metal']:checked").val() || null;
+        var goldPrice = $("#gold-price").val() || null;
+        var silverPrice = $("#silver-price").val() || null;
+        var ringPrice = $("#ring-price").val() || 0;
+
+        // Validate addRing if it is checked
+        if (addRing && ringPrice == 0) {
+            alert("Please select a metal and select a valid price.");
+            return; // Stop further execution if ring selection is invalid
+        }
+
+        
         $.ajax({
             type: "POST",
             url: "{{ route('addToCart') }}",
@@ -436,17 +557,27 @@ Effective Gems')
                 quantity: quantity,
                 isActive: isActive,
                 isCert: isCert,
+                activationUserName: activationUserName,
+                gotra: gotra,
+                dob: dob,
+                addRing: addRing,
+                selectedMetal: selectedMetal,
+                goldPrice: goldPrice,
+                silverPrice: silverPrice,
+                ringPrice: ringPrice,
             },
             success: function(response) {
                 $(".cartCount").text(response.totalCartItems);
-                alert(response.message);
+                // alert(response.message);
                 // toastr.success(response.message);
             },
             error: function(xhr, status, error) {
+                console.error("An error occurred: " + error);
                 // toastr.error("An error occurred: " + error);
             },
         });
     };
+
     const buyNow = (proId) => {
 
         var quantity = parseFloat($('input[name="quantity"], select[name="quantity"]').val());
@@ -475,3 +606,123 @@ Effective Gems')
         });
     };
 </script>
+<style>
+    .hidden {
+        display: none;
+    }
+</style>
+<style>
+    .metal-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 20px;
+        border: 2px solid transparent;
+        border-radius: 30px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .metal-option:hover, .metal-option input:checked + .icon-text {
+        border-color: #007bff;
+        background-color: #e9ecef;
+    }
+
+    .metal-option input {
+        display: none;
+    }
+
+    .metal-option .icon-text {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+        font-size: 18px;
+    }
+</style>
+@push('scripts')
+<script>
+    flatpickr('#dob', {
+            dateFormat: 'd-m-Y', // Set the desired format
+            allowInput: true, // Allow manual input
+        });
+    // Data for Gold and Silver Prices
+    const ringData = @json($ringSizes);
+
+    // Function to populate dropdowns
+    function populateDropdowns() {
+        const goldDropdown = document.getElementById('gold-price');
+        const silverDropdown = document.getElementById('silver-price');
+
+        // Clear existing options
+        goldDropdown.innerHTML = '<option value="">Select Gold Price</option>';
+        silverDropdown.innerHTML = '<option value="">Select Silver Price</option>';
+
+        // Populate options
+        ringData.forEach(item => { 
+            const goldOption = document.createElement('option');
+            goldOption.value = item.gold_price;
+            goldOption.textContent = `${item.size} - ${item.gold_price.toLocaleString('en-IN')}`;
+            goldDropdown.appendChild(goldOption);
+
+            const silverOption = document.createElement('option');
+            silverOption.value = item.silver_price;
+            silverOption.textContent = `${item.size} - ${item.silver_price.toLocaleString('en-IN')}`;
+            silverDropdown.appendChild(silverOption);
+        });
+    }
+
+    // Event Listeners
+    document.getElementById('add-ring').addEventListener('change', function() {
+        if (this.checked) {
+            document.getElementById('metal-selection').classList.remove('hidden');
+            populateDropdowns(); // Populate dropdowns when "Add Ring" is checked
+        } else {
+            document.getElementById('metal-selection').classList.add('hidden');
+            document.getElementById('gold-selection').classList.add('hidden');
+            document.getElementById('silver-selection').classList.add('hidden');
+            document.getElementById('price-display').classList.add('hidden');
+        }
+    });
+
+    document.querySelectorAll('input[name="metal"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.value === 'gold') {
+                document.getElementById('gold-selection').classList.remove('hidden');
+                document.getElementById('silver-selection').classList.add('hidden');
+            } else if (this.value === 'silver') {
+                document.getElementById('silver-selection').classList.remove('hidden');
+                document.getElementById('gold-selection').classList.add('hidden');
+            }
+            document.getElementById('price-display').classList.add('hidden'); // Hide price display on metal change
+        });
+    });
+
+    document.getElementById('gold-price').addEventListener('change', function() {
+        const selectedPrice = this.value;
+        document.getElementById('ring-price').value = selectedPrice;
+        document.getElementById('price-display').classList.remove('hidden');
+        console.log('Selected Gold Price:', selectedPrice);
+    });
+
+    document.getElementById('silver-price').addEventListener('change', function() {
+        const selectedPrice = this.value;
+        document.getElementById('ring-price').value = selectedPrice;
+        document.getElementById('price-display').classList.remove('hidden');
+        console.log('Selected Silver Price:', selectedPrice);
+    });
+
+    $('#activationCheckbox').change(function() {
+        if (this.checked) {
+            // Show the activationFields div if the checkbox is checked
+            $('#activationFields').show();
+        } else {
+            // Hide the activationFields div if the checkbox is unchecked
+            $('#activationFields').hide();
+        }
+    });
+
+
+</script>
+@endpush

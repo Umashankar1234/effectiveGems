@@ -89,6 +89,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->group(function () {
     Route::post('admin/toggleOnFooter', [CategoryController::class, 'toggleOnFooter'])->name('admin.toggleOnFooter');
     Route::post('admin/toggleOnStatus', [CategoryController::class, 'toggleOnStatus'])->name('admin.toggleOnStatus');
 
+    Route::get('/ring-size-list', [CategoryController::class, 'productRingSizelist'])->name('admin.product.ring.size');
+    Route::post('/ring-size/store', [CategoryController::class, 'storeRingSize'])->name('admin.product.ring.size.store');
+    Route::put('/ring-size/update/{id}', [CategoryController::class, 'updateRingSize'])->name('admin.product.ring.size.update');
+    
     //Testimonial
     Route::get('/add-testimonial', [TestimonialController::class, 'addtestimonial'])->name('admin.addtestimonial');
     Route::post('/store-testimonial', [TestimonialController::class, 'storetestimonial'])->name('admin.storetestimonial');
